@@ -12,18 +12,17 @@ def  payment_protocle(ca,customer,bank,merchant,blockchain,exch_center):
     """
     customer sends request to CA to get pub key & prv key - pkm,skm
     Using CA pub_key
+
+
     """
 
     message_from_customer_to_ca = customer.pub_prv_key_request_to_ca(ca.get_pub_key_of("CA"))
-
-
 
 
     """
     CA responses to request, by checking credentials & generating prv pub key if it is a new registration
     """
     ca.response_to_pub_prv_key_request(message_from_customer_to_ca)
-
 
 
     """
