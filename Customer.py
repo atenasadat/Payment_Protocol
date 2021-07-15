@@ -31,11 +31,19 @@ class Customer:
         signed = sign(m, self.private_key)
         message = customer_pu_key + ',' + bank_pu_key + ',' + policy + signed
 
-        return message
+        return encrypt(message,self.private_key)
 
+    def check_merchant_reqest(self,message,ca):
 
-# test
-# ca = CA()
-# my_customer = Customer(5, 223)
-#
-# print(my_customer.pub_prv_key_request_to_ca(ca.get_pub_key()))
+        separed= message.split(',')
+        decrypted_digi_sign = decrypt(separed[2],ca.get_pub_key_of(separed[0]))
+        decrypted_digi_sign_seperated=decrypted_digi_sign.split(',')
+        if separed[0]== decrypted_digi_sign_seperated[0] and separed[1]== decrypted_digi_sign_seperated[1]:
+            return True
+        return False
+
+    def payment_request_to_bank(self,bitcoin_amount,merchant_id):
+
+        message= bitcoin_amount+", "+ merchant_id
+
+        return encrypt(message,self.private_key)

@@ -23,7 +23,15 @@ class Merchant :
 
         message= self.id+','+ cost+','+ encrypt(self.id +','+ cost,self.private_key)
 
-        return
+        return message
+
+
+
+    #TODO
+    def confirm(self,cost):
+        # if cost == last account_balance- current ...
+# return true
+        return True
 
 
 
