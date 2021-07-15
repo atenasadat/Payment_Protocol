@@ -6,12 +6,14 @@ from EC import ExchangeCenter
 from BC import BlockChain
 
 
-def payment_protocle(ca, customer, bank, merchant, blockchain, exch_center, cost):
+def payment_protocle(ca, customer, bank, merchant, blockchain, cost):
+
+
     """
     customer sends request to CA to get pub key & prv key - pkm,skm
     Using CA pub_key
 
-"""
+    """
     
     message_from_customer_to_ca = customer.pub_prv_key_request_to_ca(ca.get_pub_key_of("CA"))
 
@@ -74,17 +76,24 @@ def payment_protocle(ca, customer, bank, merchant, blockchain, exch_center, cost
     Athenticating payment : customer sends payment request to bank
     """
     payment_req_to_bank= customer.payment_request_to_bank(200, merchant.id)
-    # bank responses
+
+
+    """
+       Bank responce to Customer for payment
+    """
+
+    exchange_crypto_message = bank.send_payment_request_to_BC(payment_req_to_bank,customer.id)
 
     """
     exchange crypto
     """
 
+    fiat_amount_and_verify_payment_message = blockchain.response_to_exchange_crypto(exchange_crypto_message,CA.get_pub_key("Bank"))
 
     """"
     Bank ( Semi-honest ) pay the payment
     """
-
+    Bank.Pay_the_payment(fiat_amount_and_verify_payment_message)
 
     """
     merchant confirmed the payment
@@ -96,14 +105,18 @@ def payment_protocle(ca, customer, bank, merchant, blockchain, exch_center, cost
 
 
 if __name__ == '__main__':
+
     ca = CA()
     customer = Customer("12", "a20")
     bank = ca.create_Bank()
     merchant = Merchant("01245", "679")
-    bank.create_acount(customer.id)
-    bank.create_acount(merchant.id)
+    bank.create_acount(customer.id , '1300000','12-0821','as452')
+    bank.create_acount(merchant.id,'120000000','13-123','fr54')
 
     blockchain = BlockChain()
+    blockchain.create_wallet(customer.id,'760000')
+
     exch_center = ExchangeCenter(10)
 
-    payment_protocle(ca, customer, bank, merchant, blockchain, exch_center)
+
+    payment_protocle(ca, customer, bank, merchant, blockchain,cost=300)

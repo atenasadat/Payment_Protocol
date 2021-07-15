@@ -2,7 +2,7 @@ class ExchangeCenter:
 
     def __init__(self,exchange_rate):
 
-        self.exchange_rate= 10
+        self.exchange_rate= exchange_rate
 
 
     def Exchange(self,amount):

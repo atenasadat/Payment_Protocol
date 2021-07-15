@@ -3,56 +3,99 @@
 
 from Utils import *
 from CA import CA
+from EC import ExchangeCenter
+
+
+
+class Block:
+
+    def __init__(self,cust_pu_key,bank_pu_key,policy):
+        self.cust_pu_key=cust_pu_key
+        self.bank_pu_key=bank_pu_key
+        self.range = policy.split('.')[0]
+        self.time = policy.split('.')[1]
+        self.count =policy.split('.')[2]
+        self.rec = policy.split('.')[3]
+
+
+
+
+
+
+
+
+
+class Wallet:
+
+    def __init__(self,nationalID,wallet_address,wallent_balance):
+        self.Id = nationalID
+        self.wallet_address = wallet_address ## equal to pu_key of customer
+        self.wallent_balance =wallent_balance
+
+
+    def Withdrawal(self,amount):
+
+        self.wallent_balance = self.wallent_balance - amount
+
+
 
 class BlockChain:
 
     def __init__(self):
         self.listOfBlocks = []
-        self.Crypto_wallets = dict()
+        self.Crypto_wallets = []
 
 
 
 
 
-    def create_acount(self,ID,balance):
-
-        self.Crypto_wallets[ID] =[
-            {"wallet_address":CA.get_pub_key(ID)},
-            {"wallent_balance":balance}]
+    def create_wallet(self,ID,balance):
+            w = Wallet(ID,CA.get_pub_key(ID) , balance)
+            self.Crypto_wallets.append(w)
 
 
+    def find_wallet_balance_of_customer_by_address(self,address):
 
-
-
-
-    # def BC_response_to_deligation(self,message,pu_key):
-    #
-    #
-    #     ### data = pkd, pkm, policy, sig(pkd || policy)
-    #     ### policy = range.count.time.receiver
-    #
-    #
-    #     data= message.split(',')
-    #
-    #     digital_sign = data[3]
-    #     decrypted_digi_sign = decrypt(digital_sign,pu_key)
-    #
-    #     policy_parts = data[2].split(".")
-    #
-    #
-    #     range= policy_parts[0]
-    #     count  = policy_parts[1]
-    #     time =policy_parts[2]
-    #     receiver = policy_parts[3]
-    #
-    #
-    #     if verify(message,digital_sign,pu_key):
-    #
-    #         if self.check_balance(adr,range):
-    #              self.addNewBlock(data[:2])
+        for w in self.Crypto_wallets:
+            if w.wallet_address == address:
+                return w.wallent_balance
 
 
 
+    def check_policy(self,money,customer_ID,merchant_ID):
+
+        customer_pu_key = CA.get_pub_key(customer_ID)
+
+        for bl in self.listOfBlocks:
+            if bl.cust_pu_key == customer_pu_key:
+                if merchant_ID == bl.rec and bl.range > money:
+
+                    return True
+
+
+    def BC_response_to_deligation(self,message,pu_key):
+
+      ## message = customer_pu_key + ',' + bank_pu_key + ',' + policy + signed
+
+
+        message = decrypt(message,pu_key)
+
+        data= message.split(',')
+
+        digital_sign = data[3]
+        dig_sig_ver = verify(message,digital_sign,pu_key)
+        policy = data[2]
+
+        ## step 1: sig verification
+        if dig_sig_ver :
+            ## step2 : check wallet balance
+            if policy.split('.')[0] > self.find_wallet_balance_of_customer_by_address(pu_key):
+
+                self.addNewBlock(data[1],data[2],policy)
+
+
+            else:
+             return "Not enough money for deligation"
 
 
     def response_to_exchange_crypto(self,message,Bank_pu_key):
@@ -71,19 +114,17 @@ class BlockChain:
             customer_ID = payment_info[1]
             merchant_ID = payment_info[2]
 
-            policy = self.find_block_policy(customer_ID)
 
-            policy = policy.split('.')
+            if self.check_policy(crypto_money,customer_ID,merchant_ID):
+                fiat_equal_money = ExchangeCenter.Exchange(crypto_money)
+                for wallet in self.Crypto_wallets:
+                    if wallet.Id == customer_ID:
+                        wallet.Withdrawal(crypto_money)
 
-            range  =policy[0]
-            count= policy[1]
-            time = policy[2]
-            receiver = policy[3]
-
-            # if range<crypto_money and receiver == merchant_ID:
-
-
-
+                mess = fiat_equal_money+','+merchant_ID+','+customer_ID
+                return encrypt(mess , Bank_pu_key)
+            else:
+               return "payment is againt policy"
 
 
 
@@ -91,24 +132,17 @@ class BlockChain:
 
 
 
-    def find_block_policy(self,ID):
-
-        for bl in self.listOfBlocks:
-            info= bl["ID"].split('/')
-            if info[0] == ID:
-                return info[3]
 
 
-    def addNewBlock(self,data,ID):
+    def addNewBlock(self,cus_pu_key,bank_pu_key,policy):
 
-        customer_pukey= data[0]
-        bank_pubkey=data[1]
-        policy = data[2]
-        block = {"ID" :ID+'/'+customer_pukey +'/'+bank_pubkey+'/'+policy}
+            b= Block(cus_pu_key,bank_pu_key,policy)
+            self.listOfBlocks.append(b)
+            return self.listOfBlocks.index(b)
 
-        self.listOfBlocks.append(block)
 
-        return self.listOfBlocks.index(block)
+
+
 
 
     def consession(self):

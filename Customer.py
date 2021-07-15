@@ -4,6 +4,7 @@ from CA import CA
 
 class Customer:
     def __init__(self, Id, certificate_num):
+
         self.id = Id # account number
         self.certificate_num = certificate_num
         #self.wallet_balance = 0
@@ -20,7 +21,7 @@ class Customer:
         return packet
 
     def policy(self, range, count, time, receiver):
-        return range + ','+count+','+time+','+receiver
+        return range + '.'+count+'.'+time+'.'+receiver
 
 
     # create message
@@ -32,6 +33,8 @@ class Customer:
         message = customer_pu_key + ',' + bank_pu_key + ',' + policy + signed
 
         return encrypt(message,self.private_key)
+
+
 
     def check_merchant_reqest(self,message,ca):
 

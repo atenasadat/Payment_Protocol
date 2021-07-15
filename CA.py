@@ -26,13 +26,7 @@ class CA:
         self.pub_keys[hash("Bank")] = key.publickey()
         return bank_
 
-    # def create_EC(self):
-    #     key = RSA.generate(1024)
-    #     self.key_pair_dict[hash("EC")] = ({"national_code": hash("EC"), "certificate_num": hash(""), "key_pair": key})
-    #
-    #     EC_ = ExchangeCenter(key)
-    #     self.pub_keys[hash("EC")] = key.publickey()
-    #     return EC_
+
 
     def get_pub_key_of(self, item):
         if hash(item) in self.pub_keys.keys():
