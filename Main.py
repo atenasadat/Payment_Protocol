@@ -10,9 +10,11 @@ def payment_protocle(ca, customer, bank, merchant, blockchain, exch_center, cost
     """
     customer sends request to CA to get pub key & prv key - pkm,skm
     Using CA pub_key
-    """
 
+"""
+    
     message_from_customer_to_ca = customer.pub_prv_key_request_to_ca(ca.get_pub_key_of("CA"))
+
 
     """
     CA responses to request, by checking credentials & generating prv pub key if it is a new registration
@@ -20,6 +22,8 @@ def payment_protocle(ca, customer, bank, merchant, blockchain, exch_center, cost
     customer_keys = ca.response_to_pub_prv_key_request(message_from_customer_to_ca)
     customer.public_key = customer_keys.public_key()
     customer.private_key = customer_keys
+
+   
 
     """
     customer send a delidation message for blockchain
