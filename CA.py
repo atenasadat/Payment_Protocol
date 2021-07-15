@@ -61,26 +61,5 @@ class CA:
                  "key_pair": key})
             self.pub_keys[hash(i_code)] = key.publickey()
 
-    def response_to_authentication_request_part2(self, message):
-        encrypted_message, signature = message
-        v = verify(encrypted_message, signature, self.pub_keys[hash("AS")])
-        if v:
-            decrypted_msg = decrypt(encrypted_message, self.key_pair)
-            identifications = decrypted_msg.split(b", ")
-            # identifications = [b"b'002-036-135", b"123-a'"]
-            c_num = str(identifications[1])[2:-2]
-            i_code = str(identifications[0])[4: -1]
-            if hash(i_code) in self.key_pair_dict.keys():
-                data = self.key_pair_dict[hash(i_code)]
-                if data["certificate_num"] == hash(c_num):
-                    my_message =(data["key_pair"].exportKey())
-                    my_encrypted_messages = encrypt_multi_packet(my_message, self.pub_keys[hash("AS")])
-                    my_signatures = sign_multi_packet(my_encrypted_messages, self.key_pair)
 
-                    second_message = i_code
-                    encrypted_second_message = encrypt(second_message, self.pub_keys[hash("AS")])
-                    signed_second_message = sign(encrypted_second_message, self.key_pair)
-
-                    return (my_encrypted_messages, my_signatures, encrypted_second_message, signed_second_message)
-
-        return None
+            return key

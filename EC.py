@@ -1,18 +1,10 @@
-
-
-
 class ExchangeCenter:
 
-    def __init__(self):
-        self.map_Of_Crypto_currency_to_doller = []
+    def __init__(self,exchange_rate):
+
+        self.exchange_rate= 10
 
 
-    def price(self):
-        return
+    def Exchange(self,amount):
 
-
-
-    def AsyncExchaing(self):
-
-
-        return
+        return amount * self.exchange_rate
